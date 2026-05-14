@@ -2,6 +2,7 @@
 <html lang="vi">
 
 <head>
+
   <meta charset="UTF-8" />
 
   <meta
@@ -27,6 +28,7 @@
       background: #111;
       color: white;
       font-family: 'Courier New', monospace;
+      overflow: hidden;
     }
 
     body {
@@ -34,12 +36,25 @@
       flex-direction: column;
     }
 
+    /* ================= STATUS ================= */
+
     #status {
       text-align: center;
       padding: 15px;
       background: #000;
       font-size: 1.2rem;
       border-bottom: 1px solid #333;
+    }
+
+    /* ================= LOGIN ================= */
+
+    #login-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 20px;
     }
 
     /* ================= MCQ ================= */
@@ -125,6 +140,10 @@
       cursor: pointer;
     }
 
+    .submit-btn:active {
+      transform: scale(0.96);
+    }
+
     /* ================= SLIDER ================= */
 
     #slider-container {
@@ -152,7 +171,7 @@
       aspect-ratio: 4/3;
 
       background:
-      url('./mars-map.png')
+        url('./mars-map.png')
         center/cover;
 
       border: 2px solid #00ff00;
@@ -209,13 +228,75 @@
     }
 
   </style>
+
 </head>
 
 <body>
 
-  <!-- STATUS -->
+  <!-- ================= LOGIN ================= -->
 
-  <div id="status">
+  <div id="login-container">
+
+    <h1
+      style="
+        color:#00ff00;
+        text-align:center;
+        text-transform:uppercase;
+        letter-spacing:2px;
+      "
+    >
+      Helios Cockpit
+    </h1>
+
+    <p
+      style="
+        color:#ccc;
+        text-align:center;
+        margin-bottom:30px;
+      "
+    >
+      Xác thực danh tính Phi hành đoàn
+    </p>
+
+    <input
+      type="text"
+      id="team-name-input"
+      placeholder="Nhập tên Đội của bạn..."
+      autocomplete="off"
+      style="
+        width:100%;
+        max-width:300px;
+        padding:15px;
+        font-size:1.2rem;
+        text-align:center;
+        background:#222;
+        border:2px solid #00ff00;
+        color:#00ff00;
+        border-radius:5px;
+        margin-bottom:20px;
+        font-family:monospace;
+        outline:none;
+      "
+    />
+
+    <button
+      class="submit-btn"
+      style="
+        background:#00ff00;
+        color:#000;
+        width:100%;
+        max-width:300px;
+      "
+      onclick="joinStation()"
+    >
+      KẾT NỐI 🚀
+    </button>
+
+  </div>
+
+  <!-- ================= STATUS ================= -->
+
+  <div id="status" style="display:none;">
     🔌 Đang kết nối tới Helios Engine...
   </div>
 
@@ -470,11 +551,14 @@
 
     // ================= SOCKET =================
 
-    const socket = io("https://3a61-112-197-49-69.ngrok-free.app", {
-      extraHeaders: {
-        "ngrok-skip-browser-warning": "true"
+    const socket = io(
+      "https://3a61-112-197-49-69.ngrok-free.app",
+      {
+        extraHeaders: {
+          "ngrok-skip-browser-warning": "true"
+        }
       }
-    });
+    );
 
     // ================= DOM =================
 
@@ -508,12 +592,54 @@
 
     let isInteractPhase = false;
 
-    const myTeam =
-      prompt("Nhập tên đội của bạn:");
+    let myTeam = "";
 
-    // ================= JOIN =================
+    // ================= LOGIN =================
 
-    socket.emit("join_station", myTeam);
+    function joinStation() {
+
+      const inputVal =
+        document
+          .getElementById("team-name-input")
+          .value
+          .trim();
+
+      if (!inputVal) {
+
+        alert(
+          "⚠️ Vui lòng nhập tên Đội của bạn trước khi cất cánh!"
+        );
+
+        return;
+      }
+
+      myTeam = inputVal;
+
+      document.getElementById("login-container").style.display =
+        "none";
+
+      document.getElementById("status").style.display =
+        "block";
+
+      socket.emit("join_station", myTeam);
+
+      statusDiv.innerText =
+        `🟢 Chờ lệnh từ Mission Control... [${myTeam}]`;
+
+      statusDiv.style.color = "#2ecc71";
+    }
+
+    // ================= ENTER TO JOIN =================
+
+    document
+      .getElementById("team-name-input")
+      .addEventListener("keypress", (e) => {
+
+        if (e.key === "Enter") {
+          joinStation();
+        }
+
+      });
 
     // ================= LOCK =================
 
