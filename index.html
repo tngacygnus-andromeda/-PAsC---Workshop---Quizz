@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  />
+
+  <title>Helios Cockpit</title>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #111;
+      color: white;
+      font-family: 'Courier New', monospace;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #status {
+      text-align: center;
+      padding: 15px;
+      background: #000;
+      font-size: 1.2rem;
+      border-bottom: 1px solid #333;
+    }
+
+    /* ================= MCQ ================= */
+
+    #mcq-container {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .row {
+      display: flex;
+      flex: 1;
+    }
+
+    .btn {
+      flex: 1;
+      margin: 5px;
+      border: none;
+      border-radius: 10px;
+      font-size: 3rem;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .btn:active {
+      opacity: 0.7;
+      transform: scale(0.95);
+    }
+
+    #btn-A {
+      background-color: #e74c3c;
+    }
+
+    #btn-B {
+      background-color: #3498db;
+    }
+
+    #btn-C {
+      background-color: #f1c40f;
+    }
+
+    #btn-D {
+      background-color: #2ecc71;
+    }
+
+    /* ================= FRQ ================= */
+
+    #frq-container {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      padding: 20px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #frq-input {
+      width: 90%;
+      height: 60px;
+      font-size: 1.5rem;
+      padding: 10px;
+      border-radius: 5px;
+      background: #222;
+      border: 2px solid #00ff00;
+      color: #00ff00;
+      text-align: center;
+      margin-bottom: 20px;
+      font-family: monospace;
+    }
+
+    /* ================= BUTTON ================= */
+
+    .submit-btn {
+      color: white;
+      font-size: 1.4rem;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    /* ================= SLIDER ================= */
+
+    #slider-container {
+      display: none;
+      flex-direction: column;
+      padding: 20px;
+      flex: 1;
+    }
+
+    /* ================= SPATIAL ================= */
+
+    #spatial-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      padding: 10px;
+    }
+
+    #mars-map {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      aspect-ratio: 4/3;
+
+      background:
+      url('./mars-map.png')
+        center/cover;
+
+      border: 2px solid #00ff00;
+      border-radius: 5px;
+
+      touch-action: none;
+    }
+
+    #crosshair {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #00ff00;
+      font-size: 2rem;
+      pointer-events: none;
+    }
+
+    #coords-display {
+      margin: 20px 0;
+      font-size: 1.5rem;
+      color: #f1c40f;
+    }
+
+    /* ================= LORENTZ ================= */
+
+    #lorentz-container {
+      display: none;
+      flex-direction: column;
+      padding: 20px;
+      align-items: center;
+      flex: 1;
+    }
+
+    #b-label {
+      font-size: 2rem;
+      margin: 20px 0;
+      color: #f1c40f;
+    }
+
+    /* ================= PLOT ================= */
+
+    #plot-container {
+      display: none;
+      flex-direction: column;
+      padding: 20px;
+      flex: 1;
+    }
+
+    .plot-input {
+      padding: 10px;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- STATUS -->
+
+  <div id="status">
+    🔌 Đang kết nối tới Helios Engine...
+  </div>
+
+  <!-- ================= MCQ ================= -->
+
+  <div id="mcq-container">
+
+    <div class="row">
+
+      <button
+        id="btn-A"
+        class="btn"
+        onclick="sendMCQ('A')"
+      >
+        A
+      </button>
+
+      <button
+        id="btn-B"
+        class="btn"
+        onclick="sendMCQ('B')"
+      >
+        B
+      </button>
+
+    </div>
+
+    <div class="row">
+
+      <button
+        id="btn-C"
+        class="btn"
+        onclick="sendMCQ('C')"
+      >
+        C
+      </button>
+
+      <button
+        id="btn-D"
+        class="btn"
+        onclick="sendMCQ('D')"
+      >
+        D
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- ================= FRQ ================= -->
+
+  <div id="frq-container">
+
+    <input
+      type="text"
+      id="frq-input"
+      placeholder="Nhập câu trả lời..."
+    />
+
+    <button
+      class="submit-btn"
+      style="background:#00ff00;color:#000;"
+      onclick="sendFRQ()"
+    >
+      GỬI
+    </button>
+
+  </div>
+
+  <!-- ================= SLIDER ================= -->
+
+  <div id="slider-container">
+
+    <h3 style="text-align:center;">
+      BẢNG ĐIỀU KHIỂN QUANG PHỔ
+    </h3>
+
+    <label>HYDRO (H)</label>
+
+    <input
+      type="range"
+      id="val-h"
+      min="0"
+      max="100"
+      value="0"
+    />
+
+    <br><br>
+
+    <label>NATRI (Na)</label>
+
+    <input
+      type="range"
+      id="val-na"
+      min="0"
+      max="100"
+      value="0"
+    />
+
+    <br><br>
+
+    <label>SẮT (Fe)</label>
+
+    <input
+      type="range"
+      id="val-fe"
+      min="0"
+      max="100"
+      value="0"
+    />
+
+    <br><br>
+
+    <button
+      class="submit-btn"
+      style="background:#00ff00;color:#000;"
+      onclick="sendSlider()"
+    >
+      XÁC NHẬN THÔNG SỐ
+    </button>
+
+  </div>
+
+  <!-- ================= SPATIAL ================= -->
+
+  <div id="spatial-container">
+
+    <h3
+      style="
+        text-align:center;
+        font-size:1.2rem;
+      "
+    >
+      RÀ RADAR VÀ KHÓA MỤC TIÊU
+    </h3>
+
+    <div
+      id="mars-map"
+      ontouchmove="trackRadar(event)"
+      onmousemove="trackRadar(event)"
+      onclick="trackRadar(event)"
+    >
+
+      <div id="crosshair">
+        ⌖
+      </div>
+
+    </div>
+
+    <div id="coords-display">
+      TỌA ĐỘ: X:50% | Y:50%
+    </div>
+
+    <button
+      class="submit-btn"
+      style="background:#e74c3c;"
+      onclick="sendSpatial()"
+    >
+      XÁC NHẬN TỌA ĐỘ
+    </button>
+
+  </div>
+
+  <!-- ================= LORENTZ ================= -->
+
+  <div id="lorentz-container">
+
+    <h3
+      style="
+        text-align:center;
+        color:#3498db;
+      "
+    >
+      KÍCH HOẠT KHIÊN TỪ TRƯỜNG
+    </h3>
+
+    <p
+      style="
+        text-align:center;
+        font-size:0.9rem;
+      "
+    >
+      Chỉnh cường độ (Tesla) để thay đổi bán kính cong của hạt phóng xạ
+    </p>
+
+    <label id="b-label">
+      TỪ TRƯỜNG: 1.0 T
+    </label>
+
+    <input
+      type="range"
+      id="val-b"
+      min="0.1"
+      max="10.0"
+      step="0.1"
+      value="1.0"
+      style="
+        margin-bottom:30px;
+        width:100%;
+      "
+      oninput="
+        document.getElementById('b-label').innerText =
+        'TỪ TRƯỜNG: ' + this.value + ' T'
+      "
+    />
+
+    <button
+      class="submit-btn"
+      style="background:#3498db;"
+      onclick="sendLorentz()"
+    >
+      THỬ NGHIỆM KHIÊN
+    </button>
+
+  </div>
+
+  <!-- ================= PLOT ================= -->
+
+  <div id="plot-container">
+
+    <h3 style="text-align:center;">
+      MÁY ĐO GEIGER (y = k/x²)
+    </h3>
+
+    <input
+      type="number"
+      id="plot-x"
+      class="plot-input"
+      placeholder="Nhập khoảng cách x..."
+    />
+
+    <input
+      type="number"
+      id="plot-y"
+      class="plot-input"
+      placeholder="Nhập bức xạ y..."
+    />
+
+    <button
+      class="submit-btn"
+      style="background:#9b59b6;"
+      onclick="sendPlot()"
+    >
+      GỬI TỌA ĐỘ ĐỒ THỊ
+    </button>
+
+  </div>
+
+  <!-- ================= SCRIPT ================= -->
+
+  <script>
+
+    // ================= SOCKET =================
+
+    const socket = io("http://127.0.0.1:4040");
+
+    // ================= DOM =================
+
+    const statusDiv =
+      document.getElementById("status");
+
+    const mcqUI =
+      document.getElementById("mcq-container");
+
+    const frqUI =
+      document.getElementById("frq-container");
+
+    const sliderUI =
+      document.getElementById("slider-container");
+
+    const spatialUI =
+      document.getElementById("spatial-container");
+
+    const lorentzUI =
+      document.getElementById("lorentz-container");
+
+    const plotUI =
+      document.getElementById("plot-container");
+
+    // ================= STATE =================
+
+    let locked = false;
+
+    let currentX = 50;
+    let currentY = 50;
+
+    let isInteractPhase = false;
+
+    const myTeam =
+      prompt("Nhập tên đội của bạn:");
+
+    // ================= JOIN =================
+
+    socket.emit("join_station", myTeam);
+
+    // ================= LOCK =================
+
+    function lockUI(message) {
+
+      locked = true;
+
+      statusDiv.innerText = message;
+    }
+
+    // ================= NEW QUESTION =================
+
+    socket.on("new_question", (q) => {
+
+      locked = false;
+
+      statusDiv.innerText =
+        "⏳ Tín hiệu kết nối ổn định...";
+
+      statusDiv.style.color = "white";
+
+      mcqUI.style.display = "none";
+      frqUI.style.display = "none";
+      sliderUI.style.display = "none";
+      spatialUI.style.display = "none";
+      lorentzUI.style.display = "none";
+      plotUI.style.display = "none";
+
+      isInteractPhase =
+        q.type.includes("INTERACT");
+
+      if (q.type === "MCQ") {
+        mcqUI.style.display = "flex";
+      }
+
+      else if (q.type === "FRQ") {
+        frqUI.style.display = "flex";
+      }
+
+      else if (q.type === "INTERACT_SLIDER") {
+        sliderUI.style.display = "flex";
+      }
+
+      else if (q.type === "INTERACT_SPATIAL") {
+        spatialUI.style.display = "flex";
+      }
+
+      else if (q.type === "INTERACT_LORENTZ") {
+        lorentzUI.style.display = "flex";
+      }
+
+      else if (q.type === "INTERACT_PLOT") {
+        plotUI.style.display = "flex";
+      }
+
+    });
+
+    // ================= TIMER =================
+
+    socket.on("timer_tick", (time) => {
+
+      statusDiv.innerText =
+        `⏳ Còn lại: ${time}s`;
+
+    });
+
+    // ================= TIME UP =================
+
+    socket.on("time_up", () => {
+
+      locked = true;
+
+      statusDiv.innerText =
+        "⌛ Hết thời gian!";
+
+    });
+
+    // ================= BAD ATTEMPT =================
+
+    socket.on("bad_attempt", (msg) => {
+
+      statusDiv.innerText = msg;
+
+      statusDiv.style.color = "#e74c3c";
+
+      setTimeout(() => {
+
+        if (!locked) {
+
+          statusDiv.innerText =
+            "⏳ Tiếp tục tinh chỉnh...";
+
+          statusDiv.style.color = "white";
+        }
+
+      }, 2000);
+
+    });
+
+    // ================= RESET =================
+
+    socket.on("game_reset", () => {
+
+      locked = false;
+
+      statusDiv.innerText =
+        `🟢 Chờ lệnh từ Mission Control... [${myTeam}]`;
+
+      statusDiv.style.color = "white";
+
+      mcqUI.style.display = "none";
+      frqUI.style.display = "none";
+      sliderUI.style.display = "none";
+      spatialUI.style.display = "none";
+      lorentzUI.style.display = "none";
+      plotUI.style.display = "none";
+
+    });
+
+    // ================= MCQ =================
+
+    function sendMCQ(choice) {
+
+      if (locked) return;
+
+      socket.emit("submit_answer", {
+        team: myTeam,
+        answer: choice
+      });
+
+      lockUI(`Đã khóa đáp án: ${choice}`);
+    }
+
+    // ================= FRQ =================
+
+    function sendFRQ() {
+
+      if (locked) return;
+
+      const answer =
+        document.getElementById("frq-input").value;
+
+      socket.emit("submit_answer", {
+        team: myTeam,
+        answer
+      });
+
+      lockUI("📡 Đã gửi câu trả lời");
+    }
+
+    // ================= SLIDER =================
+
+    function sendSlider() {
+
+      if (locked && !isInteractPhase) return;
+
+      const h =
+        parseInt(document.getElementById("val-h").value);
+
+      const na =
+        parseInt(document.getElementById("val-na").value);
+
+      const fe =
+        parseInt(document.getElementById("val-fe").value);
+
+      socket.emit("submit_answer", {
+        team: myTeam,
+        answer: { h, na, fe }
+      });
+
+      statusDiv.innerText =
+        `Đã đồng bộ: H:${h} Na:${na} Fe:${fe}`;
+
+      statusDiv.style.color = "#2ecc71";
+    }
+
+    // ================= TRACK RADAR =================
+
+    function trackRadar(event) {
+
+      event.preventDefault();
+
+      const rect =
+        document
+          .getElementById("mars-map")
+          .getBoundingClientRect();
+
+      let clientX =
+        event.touches
+          ? event.touches[0].clientX
+          : event.clientX;
+
+      let clientY =
+        event.touches
+          ? event.touches[0].clientY
+          : event.clientY;
+
+      currentX = Math.max(
+        0,
+        Math.min(
+          100,
+          Math.round(
+            ((clientX - rect.left) / rect.width) * 100
+          )
+        )
+      );
+
+      currentY = Math.max(
+        0,
+        Math.min(
+          100,
+          Math.round(
+            ((clientY - rect.top) / rect.height) * 100
+          )
+        )
+      );
+
+      document.getElementById("crosshair").style.left =
+        currentX + "%";
+
+      document.getElementById("crosshair").style.top =
+        currentY + "%";
+
+      document.getElementById("coords-display").innerText =
+        `TỌA ĐỘ: X:${currentX}% | Y:${currentY}%`;
+    }
+
+    // ================= SEND SPATIAL =================
+
+    function sendSpatial() {
+
+      if (locked && !isInteractPhase) return;
+
+      socket.emit("submit_answer", {
+        team: myTeam,
+        answer: {
+          x: currentX,
+          y: currentY
+        }
+      });
+
+      statusDiv.innerText =
+        `📍 Đã gửi tọa độ [${currentX}, ${currentY}]`;
+
+      statusDiv.style.color = "#2ecc71";
+    }
+
+    // ================= SEND LORENTZ =================
+
+    function sendLorentz() {
+
+      if (locked && !isInteractPhase) return;
+
+      const b =
+        parseFloat(
+          document.getElementById("val-b").value
+        );
+
+      socket.emit("submit_answer", {
+        team: myTeam,
+        answer: {
+          B: b
+        }
+      });
+
+      statusDiv.innerText =
+        `🛡️ Đang test khiên với ${b} Tesla`;
+
+      statusDiv.style.color = "#2ecc71";
+    }
+
+    // ================= PLOT =================
+
+    function sendPlot() {
+
+      if (locked) return;
+
+      const x =
+        parseFloat(
+          document.getElementById("plot-x").value
+        );
+
+      const y =
+        parseFloat(
+          document.getElementById("plot-y").value
+        );
+
+      socket.emit("submit_answer", {
+        team: myTeam,
+        answer: { x, y }
+      });
+
+      lockUI(
+        `📈 Đã gửi điểm (${x}, ${y})`
+      );
+    }
+
+  </script>
+
+</body>
+</html>
