@@ -470,7 +470,11 @@
 
     // ================= SOCKET =================
 
-    const socket = io("https://3a61-112-197-49-69.ngrok-free.app");
+    const socket = io("https://3a61-112-197-49-69.ngrok-free.app", {
+      extraHeaders: {
+        "ngrok-skip-browser-warning": "true"
+      }
+    });
 
     // ================= DOM =================
 
