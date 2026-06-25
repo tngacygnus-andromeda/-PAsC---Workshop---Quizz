@@ -2,20 +2,11 @@
 <html lang="vi">
 
 <head>
-
   <meta charset="UTF-8" />
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-  />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Helios Cockpit</title>
-
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-
   <style>
-
     * {
       box-sizing: border-box;
     }
@@ -37,17 +28,15 @@
     }
 
     /* ================= STATUS ================= */
-
     #status {
       text-align: center;
       padding: 15px;
       background: #000;
-      font-size: 1.2rem;
+      font-size: 1.5rem; /* Cỡ chữ to hơn */
       border-bottom: 1px solid #333;
     }
 
     /* ================= LOGIN ================= */
-
     #login-container {
       display: flex;
       flex-direction: column;
@@ -57,8 +46,48 @@
       padding: 20px;
     }
 
-    /* ================= MCQ ================= */
+    /* ================= SCORE WIDGET ================= */
+    #score-widget {
+      display: none;
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      font-size: 1.5rem;
+      color: #f1c40f;
+      font-weight: bold;
+      z-index: 100;
+    }
 
+    #score-popup {
+      position: absolute;
+      top: 30px;
+      right: 0;
+      color: #2ecc71;
+      font-size: 1.5rem;
+      opacity: 0;
+      transition: all 0.5s;
+    }
+
+    /* ================= NOTIFY BANNER ================= */
+    #notify-banner {
+      display: none;
+      position: fixed;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #f1c40f;
+      color: #000;
+      padding: 20px 40px;
+      font-size: 2.5rem;
+      font-weight: bold;
+      border-radius: 10px;
+      z-index: 200;
+      box-shadow: 0 0 20px rgba(241, 196, 15, 0.8);
+      text-align: center;
+      width: 80%;
+    }
+
+    /* ================= MCQ ================= */
     #mcq-container {
       display: none;
       flex-direction: column;
@@ -72,14 +101,15 @@
 
     .btn {
       flex: 1;
-      margin: 5px;
+      margin: 8px;
       border: none;
       border-radius: 10px;
-      font-size: 3rem;
+      font-size: 4rem; /* Cỡ chữ to hơn */
       font-weight: bold;
       color: white;
       cursor: pointer;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s ease;
     }
 
     .btn:active {
@@ -87,24 +117,12 @@
       transform: scale(0.95);
     }
 
-    #btn-A {
-      background-color: #e74c3c;
-    }
-
-    #btn-B {
-      background-color: #3498db;
-    }
-
-    #btn-C {
-      background-color: #f1c40f;
-    }
-
-    #btn-D {
-      background-color: #2ecc71;
-    }
+    #btn-A { background-color: #e74c3c; }
+    #btn-B { background-color: #3498db; }
+    #btn-C { background-color: #f1c40f; }
+    #btn-D { background-color: #2ecc71; }
 
     /* ================= FRQ ================= */
-
     #frq-container {
       display: none;
       flex-direction: column;
@@ -116,8 +134,8 @@
 
     #frq-input {
       width: 90%;
-      height: 60px;
-      font-size: 1.5rem;
+      height: 80px; /* Nhập liệu to hơn */
+      font-size: 2rem;
       padding: 10px;
       border-radius: 5px;
       background: #222;
@@ -129,11 +147,10 @@
     }
 
     /* ================= BUTTON ================= */
-
     .submit-btn {
       color: white;
-      font-size: 1.4rem;
-      padding: 15px 30px;
+      font-size: 1.8rem; /* Nút to hơn */
+      padding: 20px 40px;
       border: none;
       border-radius: 8px;
       font-weight: bold;
@@ -145,7 +162,6 @@
     }
 
     /* ================= SLIDER ================= */
-
     #slider-container {
       display: none;
       flex-direction: column;
@@ -154,7 +170,6 @@
     }
 
     /* ================= SPATIAL ================= */
-
     #spatial-container {
       display: none;
       flex-direction: column;
@@ -169,14 +184,9 @@
       width: 100%;
       max-width: 400px;
       aspect-ratio: 4/3;
-
-      background:
-        url('./mars-map.png')
-        center/cover;
-
+      background: url('./mars-map.png') center/cover;
       border: 2px solid #00ff00;
       border-radius: 5px;
-
       touch-action: none;
     }
 
@@ -197,7 +207,6 @@
     }
 
     /* ================= LORENTZ ================= */
-
     #lorentz-container {
       display: none;
       flex-direction: column;
@@ -213,7 +222,6 @@
     }
 
     /* ================= PLOT ================= */
-
     #plot-container {
       display: none;
       flex-direction: column;
@@ -226,439 +234,158 @@
       font-size: 1.2rem;
       margin-bottom: 10px;
     }
-
   </style>
-
 </head>
 
 <body>
 
-  <!-- ================= LOGIN ================= -->
-
   <div id="login-container">
-
-    <h1
-      style="
-        color:#00ff00;
-        text-align:center;
-        text-transform:uppercase;
-        letter-spacing:2px;
-      "
-    >
+    <h1 style="color:#00ff00; text-align:center; text-transform:uppercase; letter-spacing:2px; font-size: 2.5rem;">
       Helios Cockpit
     </h1>
-
-    <p
-      style="
-        color:#ccc;
-        text-align:center;
-        margin-bottom:30px;
-      "
-    >
+    <p style="color:#ccc; text-align:center; margin-bottom:30px; font-size: 1.2rem;">
       Xác thực danh tính Phi hành đoàn
     </p>
-
-    <input
-      type="text"
-      id="team-name-input"
-      placeholder="Nhập tên Đội của bạn..."
-      autocomplete="off"
-      style="
-        width:100%;
-        max-width:300px;
-        padding:15px;
-        font-size:1.2rem;
-        text-align:center;
-        background:#222;
-        border:2px solid #00ff00;
-        color:#00ff00;
-        border-radius:5px;
-        margin-bottom:20px;
-        font-family:monospace;
-        outline:none;
-      "
-    />
-
-    <button
-      class="submit-btn"
-      style="
-        background:#00ff00;
-        color:#000;
-        width:100%;
-        max-width:300px;
-      "
-      onclick="joinStation()"
-    >
+    <input type="text" id="team-name-input" placeholder="Nhập tên Đội của bạn..." autocomplete="off"
+      style="width:100%; max-width:350px; padding:20px; font-size:1.5rem; text-align:center; background:#222; border:2px solid #00ff00; color:#00ff00; border-radius:5px; margin-bottom:20px; font-family:monospace; outline:none;" />
+    <button class="submit-btn" style="background:#00ff00; color:#000; width:100%; max-width:350px;" onclick="joinStation()">
       KẾT NỐI 🚀
     </button>
-
   </div>
-
-  <!-- ================= STATUS ================= -->
 
   <div id="status" style="display:none;">
     🔌 Đang kết nối tới Helios Engine...
   </div>
 
-  <!-- ================= MCQ ================= -->
+  <div id="score-widget">
+    ĐIỂM: <span id="my-score">0</span>
+    <div id="score-popup">+0</div>
+  </div>
+
+  <div id="notify-banner">⚠️ CÂU HỎI MỚI!</div>
 
   <div id="mcq-container">
-
     <div class="row">
-
-      <button
-        id="btn-A"
-        class="btn"
-        onclick="sendMCQ('A')"
-      >
-        A
-      </button>
-
-      <button
-        id="btn-B"
-        class="btn"
-        onclick="sendMCQ('B')"
-      >
-        B
-      </button>
-
+      <button id="btn-A" class="btn" onclick="sendMCQ('A')">A</button>
+      <button id="btn-B" class="btn" onclick="sendMCQ('B')">B</button>
     </div>
-
     <div class="row">
-
-      <button
-        id="btn-C"
-        class="btn"
-        onclick="sendMCQ('C')"
-      >
-        C
-      </button>
-
-      <button
-        id="btn-D"
-        class="btn"
-        onclick="sendMCQ('D')"
-      >
-        D
-      </button>
-
+      <button id="btn-C" class="btn" onclick="sendMCQ('C')">C</button>
+      <button id="btn-D" class="btn" onclick="sendMCQ('D')">D</button>
     </div>
-
   </div>
-
-  <!-- ================= FRQ ================= -->
 
   <div id="frq-container">
-
-    <input
-      type="text"
-      id="frq-input"
-      placeholder="Nhập câu trả lời..."
-    />
-
-    <button
-      class="submit-btn"
-      style="background:#00ff00;color:#000;"
-      onclick="sendFRQ()"
-    >
+    <input type="text" id="frq-input" placeholder="Nhập câu trả lời..." />
+    <button class="submit-btn" style="background:#00ff00;color:#000;" onclick="sendFRQ()">
       GỬI
     </button>
-
   </div>
-
-  <!-- ================= SLIDER ================= -->
 
   <div id="slider-container">
-
-    <h3 style="text-align:center;">
-      BẢNG ĐIỀU KHIỂN QUANG PHỔ
-    </h3>
-
-    <label>HYDRO (H)</label>
-
-    <input
-      type="range"
-      id="val-h"
-      min="0"
-      max="100"
-      value="0"
-    />
-
+    <h3 style="text-align:center; font-size: 1.5rem;">BẢNG ĐIỀU KHIỂN QUANG PHỔ</h3>
+    <label style="font-size: 1.2rem;">HYDRO (H)</label>
+    <input type="range" id="val-h" min="0" max="100" value="0" />
     <br><br>
-
-    <label>NATRI (Na)</label>
-
-    <input
-      type="range"
-      id="val-na"
-      min="0"
-      max="100"
-      value="0"
-    />
-
+    <label style="font-size: 1.2rem;">NATRI (Na)</label>
+    <input type="range" id="val-na" min="0" max="100" value="0" />
     <br><br>
-
-    <label>SẮT (Fe)</label>
-
-    <input
-      type="range"
-      id="val-fe"
-      min="0"
-      max="100"
-      value="0"
-    />
-
+    <label style="font-size: 1.2rem;">SẮT (Fe)</label>
+    <input type="range" id="val-fe" min="0" max="100" value="0" />
     <br><br>
-
-    <button
-      class="submit-btn"
-      style="background:#00ff00;color:#000;"
-      onclick="sendSlider()"
-    >
+    <button class="submit-btn" style="background:#00ff00;color:#000;" onclick="sendSlider()">
       XÁC NHẬN THÔNG SỐ
     </button>
-
   </div>
-
-  <!-- ================= SPATIAL ================= -->
 
   <div id="spatial-container">
-
-    <h3
-      style="
-        text-align:center;
-        font-size:1.2rem;
-      "
-    >
-      RÀ RADAR VÀ KHÓA MỤC TIÊU
-    </h3>
-
-    <div
-      id="mars-map"
-      ontouchmove="trackRadar(event)"
-      onmousemove="trackRadar(event)"
-      onclick="trackRadar(event)"
-    >
-
-      <div id="crosshair">
-        ⌖
-      </div>
-
+    <h3 style="text-align:center; font-size:1.5rem;">RÀ RADAR VÀ KHÓA MỤC TIÊU</h3>
+    <div id="mars-map" ontouchmove="trackRadar(event)" onmousemove="trackRadar(event)" onclick="trackRadar(event)">
+      <div id="crosshair">⌖</div>
     </div>
-
-    <div id="coords-display">
-      TỌA ĐỘ: X:50% | Y:50%
-    </div>
-
-    <button
-      class="submit-btn"
-      style="background:#e74c3c;"
-      onclick="sendSpatial()"
-    >
+    <div id="coords-display">TỌA ĐỘ: X:50% | Y:50%</div>
+    <button class="submit-btn" style="background:#e74c3c;" onclick="sendSpatial()">
       XÁC NHẬN TỌA ĐỘ
     </button>
-
   </div>
-
-  <!-- ================= LORENTZ ================= -->
 
   <div id="lorentz-container">
-
-    <h3
-      style="
-        text-align:center;
-        color:#3498db;
-      "
-    >
-      KÍCH HOẠT KHIÊN TỪ TRƯỜNG
-    </h3>
-
-    <p
-      style="
-        text-align:center;
-        font-size:0.9rem;
-      "
-    >
-      Chỉnh cường độ (Tesla) để thay đổi bán kính cong của hạt phóng xạ
-    </p>
-
-    <label id="b-label">
-      TỪ TRƯỜNG: 1.0 T
-    </label>
-
-    <input
-      type="range"
-      id="val-b"
-      min="0.1"
-      max="10.0"
-      step="0.1"
-      value="1.0"
-      style="
-        margin-bottom:30px;
-        width:100%;
-      "
-      oninput="
-        document.getElementById('b-label').innerText =
-        'TỪ TRƯỜNG: ' + this.value + ' T'
-      "
-    />
-
-    <button
-      class="submit-btn"
-      style="background:#3498db;"
-      onclick="sendLorentz()"
-    >
+    <h3 style="text-align:center; color:#3498db; font-size: 1.5rem;">KÍCH HOẠT KHIÊN TỪ TRƯỜNG</h3>
+    <p style="text-align:center; font-size:1.2rem;">Chỉnh cường độ (Tesla) để thay đổi bán kính cong của hạt phóng xạ</p>
+    <label id="b-label">TỪ TRƯỜNG: 1.0 T</label>
+    <input type="range" id="val-b" min="0.1" max="10.0" step="0.1" value="1.0" style="margin-bottom:30px; width:100%;"
+      oninput="document.getElementById('b-label').innerText = 'TỪ TRƯỜNG: ' + this.value + ' T'" />
+    <button class="submit-btn" style="background:#3498db;" onclick="sendLorentz()">
       THỬ NGHIỆM KHIÊN
     </button>
-
   </div>
-
-  <!-- ================= PLOT ================= -->
 
   <div id="plot-container">
-
-    <h3 style="text-align:center;">
-      MÁY ĐO GEIGER (y = k/x²)
-    </h3>
-
-    <input
-      type="number"
-      id="plot-x"
-      class="plot-input"
-      placeholder="Nhập khoảng cách x..."
-    />
-
-    <input
-      type="number"
-      id="plot-y"
-      class="plot-input"
-      placeholder="Nhập bức xạ y..."
-    />
-
-    <button
-      class="submit-btn"
-      style="background:#9b59b6;"
-      onclick="sendPlot()"
-    >
+    <h3 style="text-align:center; font-size: 1.5rem;">MÁY ĐO GEIGER (y = k/x²)</h3>
+    <input type="number" id="plot-x" class="plot-input" placeholder="Nhập khoảng cách x..." />
+    <input type="number" id="plot-y" class="plot-input" placeholder="Nhập bức xạ y..." />
+    <button class="submit-btn" style="background:#9b59b6;" onclick="sendPlot()">
       GỬI TỌA ĐỘ ĐỒ THỊ
     </button>
-
   </div>
 
-  <!-- ================= SCRIPT ================= -->
-
   <script>
+    const socket = io("https://9b1a-14-224-172-74.ngrok-free.app", {
+      extraHeaders: { "ngrok-skip-browser-warning": "true" }
+    });
 
-    // ================= SOCKET =================
-
-    const socket = io(
-      "https://9b1a-14-224-172-74.ngrok-free.app",
-      {
-        extraHeaders: {
-          "ngrok-skip-browser-warning": "true"
-        }
-      }
-    );
-
-    // ================= DOM =================
-
-    const statusDiv =
-      document.getElementById("status");
-
-    const mcqUI =
-      document.getElementById("mcq-container");
-
-    const frqUI =
-      document.getElementById("frq-container");
-
-    const sliderUI =
-      document.getElementById("slider-container");
-
-    const spatialUI =
-      document.getElementById("spatial-container");
-
-    const lorentzUI =
-      document.getElementById("lorentz-container");
-
-    const plotUI =
-      document.getElementById("plot-container");
-
-    // ================= STATE =================
+    const statusDiv = document.getElementById("status");
+    const mcqUI = document.getElementById("mcq-container");
+    const frqUI = document.getElementById("frq-container");
+    const sliderUI = document.getElementById("slider-container");
+    const spatialUI = document.getElementById("spatial-container");
+    const lorentzUI = document.getElementById("lorentz-container");
+    const plotUI = document.getElementById("plot-container");
 
     let locked = false;
-
     let currentX = 50;
     let currentY = 50;
-
     let isInteractPhase = false;
-
     let myTeam = "";
 
-    // ================= LOGIN =================
+    // Biến trạng thái điểm và kết quả
+    let myScore = 0;
+    let currentCorrectAnswer = null;
+    let mySelectedAnswer = null;
+    const defaultBtnColors = { A: '#e74c3c', B: '#3498db', C: '#f1c40f', D: '#2ecc71' };
 
     function joinStation() {
-
-      const inputVal =
-        document
-          .getElementById("team-name-input")
-          .value
-          .trim();
-
+      const inputVal = document.getElementById("team-name-input").value.trim();
       if (!inputVal) {
-
-        alert(
-          "⚠️ Vui lòng nhập tên Đội của bạn trước khi cất cánh!"
-        );
-
+        alert("⚠️ Vui lòng nhập tên Đội của bạn trước khi cất cánh!");
         return;
       }
-
       myTeam = inputVal;
-
-      document.getElementById("login-container").style.display =
-        "none";
-
-      document.getElementById("status").style.display =
-        "block";
+      document.getElementById("login-container").style.display = "none";
+      document.getElementById("status").style.display = "block";
+      document.getElementById("score-widget").style.display = "block";
 
       socket.emit("join_station", myTeam);
-
-      statusDiv.innerText =
-        `🟢 Chờ lệnh từ Mission Control... [${myTeam}]`;
-
+      statusDiv.innerText = `🟢 Chờ lệnh từ Mission Control... [${myTeam}]`;
       statusDiv.style.color = "#2ecc71";
     }
 
-    // ================= ENTER TO JOIN =================
-
-    document
-      .getElementById("team-name-input")
-      .addEventListener("keypress", (e) => {
-
-        if (e.key === "Enter") {
-          joinStation();
-        }
-
-      });
-
-    // ================= LOCK =================
+    document.getElementById("team-name-input").addEventListener("keypress", (e) => {
+      if (e.key === "Enter") joinStation();
+    });
 
     function lockUI(message) {
-
       locked = true;
-
       statusDiv.innerText = message;
     }
 
-    // ================= NEW QUESTION =================
-
+    // ================= SỰ KIỆN TỪ SERVER =================
     socket.on("new_question", (q) => {
-
       locked = false;
+      currentCorrectAnswer = q.correct_answer; 
+      mySelectedAnswer = null;
 
-      statusDiv.innerText =
-        "⏳ Tín hiệu kết nối ổn định...";
-
+      statusDiv.innerText = "⏳ Tín hiệu kết nối ổn định...";
       statusDiv.style.color = "white";
 
       mcqUI.style.display = "none";
@@ -668,276 +395,172 @@
       lorentzUI.style.display = "none";
       plotUI.style.display = "none";
 
-      isInteractPhase =
-        q.type.includes("INTERACT");
+      // Khôi phục trạng thái nút MCQ
+      ['A', 'B', 'C', 'D'].forEach(opt => {
+        const btn = document.getElementById('btn-' + opt);
+        if (btn) {
+          btn.style.backgroundColor = defaultBtnColors[opt];
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          btn.style.boxShadow = 'none';
+          btn.style.transform = 'scale(1)';
+        }
+      });
 
-      if (q.type === "MCQ") {
-        mcqUI.style.display = "flex";
-      }
+      // Hiển thị banner
+      const banner = document.getElementById('notify-banner');
+      banner.style.display = 'block';
+      setTimeout(() => { banner.style.display = 'none'; }, 2000);
 
-      else if (q.type === "FRQ") {
-        frqUI.style.display = "flex";
-      }
+      isInteractPhase = q.type.includes("INTERACT");
 
-      else if (q.type === "INTERACT_SLIDER") {
-        sliderUI.style.display = "flex";
-      }
-
-      else if (q.type === "INTERACT_SPATIAL") {
-        spatialUI.style.display = "flex";
-      }
-
-      else if (q.type === "INTERACT_LORENTZ") {
-        lorentzUI.style.display = "flex";
-      }
-
-      else if (q.type === "INTERACT_PLOT") {
-        plotUI.style.display = "flex";
-      }
-
+      if (q.type === "MCQ") mcqUI.style.display = "flex";
+      else if (q.type === "FRQ") { frqUI.style.display = "flex"; document.getElementById("frq-input").value = ""; }
+      else if (q.type === "INTERACT_SLIDER") sliderUI.style.display = "flex";
+      else if (q.type === "INTERACT_SPATIAL") spatialUI.style.display = "flex";
+      else if (q.type === "INTERACT_LORENTZ") lorentzUI.style.display = "flex";
+      else if (q.type === "INTERACT_PLOT") plotUI.style.display = "flex";
     });
-
-    // ================= TIMER =================
 
     socket.on("timer_tick", (time) => {
-
-      statusDiv.innerText =
-        `⏳ Còn lại: ${time}s`;
-
+      statusDiv.innerText = `⏳ Còn lại: ${time}s`;
     });
-
-    // ================= TIME UP =================
 
     socket.on("time_up", () => {
-
       locked = true;
+      statusDiv.innerText = "⌛ Hết thời gian!";
 
-      statusDiv.innerText =
-        "⌛ Hết thời gian!";
-
+      // Xử lý tô màu kết quả MCQ
+      if (mySelectedAnswer && currentCorrectAnswer) {
+        const btn = document.getElementById('btn-' + mySelectedAnswer);
+        if (mySelectedAnswer === currentCorrectAnswer) {
+          btn.style.backgroundColor = '#2980b9'; // Xanh dương
+          btn.style.boxShadow = '0 0 30px #2980b9';
+        } else {
+          btn.style.backgroundColor = '#c0392b'; // Đỏ
+          btn.style.boxShadow = '0 0 30px #c0392b';
+        }
+        btn.style.opacity = '1'; 
+      }
     });
 
-    // ================= BAD ATTEMPT =================
+    socket.on('update_leaderboard', (scores) => {
+      if (scores[myTeam] !== undefined) {
+        const newScore = scores[myTeam];
+        if (newScore > myScore) {
+          const diff = newScore - myScore;
+          const popup = document.getElementById('score-popup');
+          popup.innerText = `+${diff}`;
+          popup.style.opacity = '1';
+          popup.style.top = '10px';
+          setTimeout(() => {
+            popup.style.opacity = '0';
+            popup.style.top = '30px';
+          }, 2000);
+        }
+        myScore = newScore;
+        document.getElementById('my-score').innerText = myScore;
+      }
+    });
 
     socket.on("bad_attempt", (msg) => {
-
       statusDiv.innerText = msg;
-
       statusDiv.style.color = "#e74c3c";
-
       setTimeout(() => {
-
         if (!locked) {
-
-          statusDiv.innerText =
-            "⏳ Tiếp tục tinh chỉnh...";
-
+          statusDiv.innerText = "⏳ Tiếp tục tinh chỉnh...";
           statusDiv.style.color = "white";
         }
-
       }, 2000);
-
     });
 
-    // ================= RESET =================
-
     socket.on("game_reset", () => {
-
       locked = false;
-
-      statusDiv.innerText =
-        `🟢 Chờ lệnh từ Mission Control... [${myTeam}]`;
-
+      myScore = 0;
+      document.getElementById('my-score').innerText = myScore;
+      statusDiv.innerText = `🟢 Chờ lệnh từ Mission Control... [${myTeam}]`;
       statusDiv.style.color = "white";
-
       mcqUI.style.display = "none";
       frqUI.style.display = "none";
       sliderUI.style.display = "none";
       spatialUI.style.display = "none";
       lorentzUI.style.display = "none";
       plotUI.style.display = "none";
-
     });
 
-    // ================= MCQ =================
-
+    // ================= XỬ LÝ GỬI DỮ LIỆU =================
     function sendMCQ(choice) {
-
       if (locked) return;
+      mySelectedAnswer = choice;
 
-      socket.emit("submit_answer", {
-        team: myTeam,
-        answer: choice
+      ['A', 'B', 'C', 'D'].forEach(opt => {
+        const btn = document.getElementById('btn-' + opt);
+        btn.disabled = true;
+        if (opt === choice) {
+          btn.style.backgroundColor = '#7f8c8d'; 
+          btn.style.transform = 'scale(0.95)';
+        } else {
+          btn.style.opacity = '0.3';
+        }
       });
 
-      lockUI(`Đã khóa đáp án: ${choice}`);
+      socket.emit("submit_answer", { team: myTeam, answer: choice });
+      locked = true;
+      statusDiv.innerText = `Đã khóa đáp án: ${choice}`;
     }
-
-    // ================= FRQ =================
 
     function sendFRQ() {
-
       if (locked) return;
-
-      const answer =
-        document.getElementById("frq-input").value;
-
-      socket.emit("submit_answer", {
-        team: myTeam,
-        answer
-      });
-
-      lockUI("📡 Đã gửi câu trả lời");
+      const answer = document.getElementById("frq-input").value;
+      socket.emit("submit_answer", { team: myTeam, answer });
+      locked = true;
+      statusDiv.innerText = "📡 Đã gửi câu trả lời";
     }
-
-    // ================= SLIDER =================
 
     function sendSlider() {
-
       if (locked && !isInteractPhase) return;
-
-      const h =
-        parseInt(document.getElementById("val-h").value);
-
-      const na =
-        parseInt(document.getElementById("val-na").value);
-
-      const fe =
-        parseInt(document.getElementById("val-fe").value);
-
-      socket.emit("submit_answer", {
-        team: myTeam,
-        answer: { h, na, fe }
-      });
-
-      statusDiv.innerText =
-        `Đã đồng bộ: H:${h} Na:${na} Fe:${fe}`;
-
+      const h = parseInt(document.getElementById("val-h").value);
+      const na = parseInt(document.getElementById("val-na").value);
+      const fe = parseInt(document.getElementById("val-fe").value);
+      socket.emit("submit_answer", { team: myTeam, answer: { h, na, fe } });
+      statusDiv.innerText = `Đã đồng bộ: H:${h} Na:${na} Fe:${fe}`;
       statusDiv.style.color = "#2ecc71";
     }
-
-    // ================= TRACK RADAR =================
 
     function trackRadar(event) {
-
       event.preventDefault();
-
-      const rect =
-        document
-          .getElementById("mars-map")
-          .getBoundingClientRect();
-
-      let clientX =
-        event.touches
-          ? event.touches[0].clientX
-          : event.clientX;
-
-      let clientY =
-        event.touches
-          ? event.touches[0].clientY
-          : event.clientY;
-
-      currentX = Math.max(
-        0,
-        Math.min(
-          100,
-          Math.round(
-            ((clientX - rect.left) / rect.width) * 100
-          )
-        )
-      );
-
-      currentY = Math.max(
-        0,
-        Math.min(
-          100,
-          Math.round(
-            ((clientY - rect.top) / rect.height) * 100
-          )
-        )
-      );
-
-      document.getElementById("crosshair").style.left =
-        currentX + "%";
-
-      document.getElementById("crosshair").style.top =
-        currentY + "%";
-
-      document.getElementById("coords-display").innerText =
-        `TỌA ĐỘ: X:${currentX}% | Y:${currentY}%`;
+      const rect = document.getElementById("mars-map").getBoundingClientRect();
+      let clientX = event.touches ? event.touches[0].clientX : event.clientX;
+      let clientY = event.touches ? event.touches[0].clientY : event.clientY;
+      currentX = Math.max(0, Math.min(100, Math.round(((clientX - rect.left) / rect.width) * 100)));
+      currentY = Math.max(0, Math.min(100, Math.round(((clientY - rect.top) / rect.height) * 100)));
+      document.getElementById("crosshair").style.left = currentX + "%";
+      document.getElementById("crosshair").style.top = currentY + "%";
+      document.getElementById("coords-display").innerText = `TỌA ĐỘ: X:${currentX}% | Y:${currentY}%`;
     }
-
-    // ================= SEND SPATIAL =================
 
     function sendSpatial() {
-
       if (locked && !isInteractPhase) return;
-
-      socket.emit("submit_answer", {
-        team: myTeam,
-        answer: {
-          x: currentX,
-          y: currentY
-        }
-      });
-
-      statusDiv.innerText =
-        `📍 Đã gửi tọa độ [${currentX}, ${currentY}]`;
-
+      socket.emit("submit_answer", { team: myTeam, answer: { x: currentX, y: currentY } });
+      statusDiv.innerText = `📍 Đã gửi tọa độ [${currentX}, ${currentY}]`;
       statusDiv.style.color = "#2ecc71";
     }
-
-    // ================= SEND LORENTZ =================
 
     function sendLorentz() {
-
       if (locked && !isInteractPhase) return;
-
-      const b =
-        parseFloat(
-          document.getElementById("val-b").value
-        );
-
-      socket.emit("submit_answer", {
-        team: myTeam,
-        answer: {
-          B: b
-        }
-      });
-
-      statusDiv.innerText =
-        `🛡️ Đang test khiên với ${b} Tesla`;
-
+      const b = parseFloat(document.getElementById("val-b").value);
+      socket.emit("submit_answer", { team: myTeam, answer: { B: b } });
+      statusDiv.innerText = `🛡️ Đang test khiên với ${b} Tesla`;
       statusDiv.style.color = "#2ecc71";
     }
 
-    // ================= PLOT =================
-
     function sendPlot() {
-
       if (locked) return;
-
-      const x =
-        parseFloat(
-          document.getElementById("plot-x").value
-        );
-
-      const y =
-        parseFloat(
-          document.getElementById("plot-y").value
-        );
-
-      socket.emit("submit_answer", {
-        team: myTeam,
-        answer: { x, y }
-      });
-
-      lockUI(
-        `📈 Đã gửi điểm (${x}, ${y})`
-      );
+      const x = parseFloat(document.getElementById("plot-x").value);
+      const y = parseFloat(document.getElementById("plot-y").value);
+      socket.emit("submit_answer", { team: myTeam, answer: { x, y } });
+      lockUI(`📈 Đã gửi điểm (${x}, ${y})`);
     }
-
   </script>
-
 </body>
 </html>
